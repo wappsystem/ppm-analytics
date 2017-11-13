@@ -1,0 +1,32 @@
+<section>
+      VmInclude:__COMPONENT__/grid/grid.v3.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:__COMPONENT__/grid/grid.v3.js
+        VmInclude:__COMPONENT__/style/ease-in-out.js
+        _json=''; //Store data as XML - NOT json
+        //-------------------------------------
+		$('#new__ID').hide();
+		$('#save__ID').hide();
+		//-------------------------------------
+        _fields="_Form,Parent ID|PUID,Version,Status,Total project budget|Amount,Approval_Date,Approved_By,Approval_FY,Comments,Project Proposal/Variation Narrative|DocBudget,Project Budget|DocProjectBudget";
+        _fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
+        //-------------------------------------
+        _cell_render=function(records,I,field,td,set_value,source){
+            switch(field){
+                case 'DocBudget':
+                case 'DocProjectBudget':
+                VmInclude:__COMPONENT__/grid/field_file.js
+                	break;
+            }
+        }
+        //-------------------------------------
+        $('#D__ID').on('load',function(){ _set_req(); _request_data(); })
+        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__COMPONENT__/grid/grid.v3.css
+</style>

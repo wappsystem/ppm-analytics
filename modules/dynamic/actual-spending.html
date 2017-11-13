@@ -1,0 +1,35 @@
+<section>
+      VmInclude:__COMPONENT__/grid/grid.v3.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:__COMPONENT__/grid/grid.v3.js
+        VmInclude:__COMPONENT__/style/ease-in-out.js
+        _json=''; //Store data as XML - NOT json
+        //-------------------------------------
+		$('#new__ID').hide();
+		$('#save__ID').hide();
+		//-------------------------------------
+        _fields="_Form,Parent ID|PUID,Financial Year|FY,FY_Start,FY_End,Amount_Q1,Amount_Q2,Amount_Q3,Amount_Q4,Project Acquittal Report|Acquittal_report,Comments,Lock";
+        _fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
+        //-------------------------------------
+        _cell_render=function(records,I,field,td,set_value,source){
+            switch(field){
+                case 'Acquittal_report':
+                VmInclude:__COMPONENT__/grid/field_file.js
+                	break;
+                case 'Lock':
+                td.html('<input type=checkbox />');
+                VmInclude:__COMPONENT__/grid/field_checkbox.js
+                    break;
+            }
+        }
+        //-------------------------------------
+        $('#D__ID').on('load',function(){ _set_req(); _request_data(); })
+        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__COMPONENT__/grid/grid.v3.css
+</style>

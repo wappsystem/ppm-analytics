@@ -1,0 +1,28 @@
+<section>
+      VmInclude:__COMPONENT__/grid/grid.v3.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:__COMPONENT__/grid/grid.v3.js
+        VmInclude:__COMPONENT__/style/ease-in-out.js
+        _json=''; //Store data as XML - NOT json
+        //-------------------------------------
+		$('#new__ID').hide();
+		$('#save__ID').hide();
+		//-------------------------------------
+        _fields="_Form,Parent ID|PUID,Donor_Name,Donor_Relationship_Manager,Donor Funding Proposed Amount and FY(s)|Donor_Funding_Proposed,Donor Funding Confirmed Amount and FY(s)|Donor_Funding_Confirmed,Comments";
+        _fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
+        //-------------------------------------
+        _cell_render=function(records,I,field,td,set_value,source){
+            switch(field){
+            }
+        }
+        //-------------------------------------
+        $('#D__ID').on('load',function(){ _set_req(); _request_data(); })
+        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:__COMPONENT__/grid/grid.v3.css
+</style>
