@@ -11,14 +11,28 @@
 		$('#new__ID').hide();
 		$('#save__ID').hide();
 		//-------------------------------------
-        _fields="_Form,Parent ID|PUID,Financial Year|FY,FY_Start,FY_End,Amount_Q1,Amount_Q2,Amount_Q3,Amount_Q4,Project Acquittal Report|Acquittal_report,Comments,Lock";
+        _fields="_Form,PUID,UID,Financial Year|FY,FY_Start,FY_End,Amount_Q1,Amount_Q2,Amount_Q3,Amount_Q4,Project Acquittal Report|Acquittal_report,Comments,Lock";
         _fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
         //-------------------------------------
         _cell_render=function(records,I,field,td,set_value,source){
             switch(field){
                 case 'Acquittal_report':
-                VmInclude:__COMPONENT__/grid/field_file.js
-                	break;
+                    records[I].vm_custom[field]=true;
+                    if(records[I][field]===undefined) records[I][field]="";
+                    td.data('filename_field',field);
+                    var html="<u style='cursor:pointer'>"+records[I][field]+"</u>";
+                    html+="<form><input type=file style='display:none'></input></form>";
+                    td.html(html);
+                    if(records[I][field]==="" || records[I][field]===null || records[I][field]===undefined) td.find('a.remove_file').css('visibility','hidden');
+                    td.find('u').on('click',function(){
+                        var f_name=$(this).html();
+                        var rid=records[I].ID;
+                        if(rid!==undefined){
+                            $vm.open_link({rid:rid,filename:f_name});
+                        }
+                        else alert("No file was found on server.")
+                    });
+            	break;
                 case 'Lock':
                 td.html('<input type=checkbox />');
                 VmInclude:__COMPONENT__/grid/field_checkbox.js

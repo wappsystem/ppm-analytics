@@ -11,84 +11,28 @@
 		$('#new__ID').hide();
 		$('#save__ID').hide();
 		//-------------------------------------
-        _fields="_Form,Program Documents|_Program_Documents,Projects (Open)|_Projects_Open,Projects (Closed)|_Projects_Closed,Program,Country,Code,Comments,Document|DocProgram";
+        _fields="_Form,UID,Program,Country,Code,Comments,Document|DocProgram";
         _fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
         //-------------------------------------
         _cell_render=function(records,I,field,td,set_value,source){
             switch(field){
-                case 'Country':
-                    var sql="with tb as (select name=@('Country') from [TABLE-"+$vm.module_list['country'].table_id+"] )";
-                    sql+=" select top 10 name,value=name from tb where name like '%'+@S1+'%' order by name ";
-                    VmInclude:__COMPONENT__/grid/field_auto.js
-                    break;
                 case 'DocProgram':
-                VmInclude:__COMPONENT__/grid/field_file.js
-                	break;
-                case '_Program_Documents':
                     records[I].vm_custom[field]=true;
-                    if(_records[I].UID===undefined) return;
-                    td.html("<u style='cursor:pointer'>Documents</u>");
+                    if(records[I][field]===undefined) records[I][field]="";
+                    td.data('filename_field',field);
+                    var html="<u style='cursor:pointer'>"+records[I][field]+"</u>";
+                    html+="<form><input type=file style='display:none'></input></form>";
+                    td.html(html);
+                    if(records[I][field]==="" || records[I][field]===null || records[I][field]===undefined) td.find('a.remove_file').css('visibility','hidden');
                     td.find('u').on('click',function(){
-                        //$vm.module_list[_app_id+'particpant_cash_project']
-                            $vm.load_module_by_name("program_document",$vm.root_layout_content_slot,{
-                                //------------------------
-                                mobj:_mobj,
-                                record:records[I],
-                                puid:records[I].UID,
-                                sys:{},
-                                ppid:_db_pid,
-                                //------------------------
-								parent_uid:records[I].UID,
-								child:"1",
-                                check_count_where:" and PUID="+records[I].UID,
-                            })
-                            //-----------------------------------------------
+                        var f_name=$(this).html();
+                        var rid=records[I].ID;
+                        if(rid!==undefined){
+                            $vm.open_link({rid:rid,filename:f_name});
+                        }
+                        else alert("No file was found on server.")
                     });
-                	break;
-                case '_Projects_Open':
-                    records[I].vm_custom[field]=true;
-                    if(_records[I].UID===undefined) return;
-                    td.html("<u style='cursor:pointer'>Projects (Open)</u>");
-                    td.find('u').on('click',function(){
-                        //$vm.module_list[_app_id+'particpant_cash_project']
-                            $vm.load_module_by_name("project_list",$vm.root_layout_content_slot,{
-                                //------------------------
-                                mobj:_mobj,
-                                record:records[I],
-                                puid:records[I].UID,
-                                sys:{},
-                                ppid:_db_pid,
-                                //------------------------
-                                parent_uid:records[I].UID,
-								child:"1",
-                                check_count_where:" and PUID="+records[I].UID,
-                                status:"open",
-                            })
-                            //-----------------------------------------------
-                    });
-                	break;
-                case '_Projects_Closed':
-                    records[I].vm_custom[field]=true;
-                    if(_records[I].UID===undefined) return;
-                    td.html("<u style='cursor:pointer'>Projects (Closed)</u>");
-                    td.find('u').on('click',function(){
-                        //$vm.module_list[_app_id+'particpant_cash_project']
-                            $vm.load_module_by_name("project_list",$vm.root_layout_content_slot,{
-                                //------------------------
-                                mobj:_mobj,
-                                record:records[I],
-                                puid:records[I].UID,
-                                sys:{},
-                                ppid:_db_pid,
-                                //------------------------
-                                parent_uid:records[I].UID,
-								child:"1",
-                                check_count_where:" and PUID="+records[I].UID,
-                                status:"closed",
-                            })
-                            //-----------------------------------------------
-                    });
-                	break;
+        	     break;
             }
         }
         //-------------------------------------

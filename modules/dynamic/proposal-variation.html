@@ -11,15 +11,29 @@
 		$('#new__ID').hide();
 		$('#save__ID').hide();
 		//-------------------------------------
-        _fields="_Form,Parent ID|PUID,Version,Status,Total project budget|Amount,Approval_Date,Approved_By,Approval_FY,Comments,Project Proposal/Variation Narrative|DocBudget,Project Budget|DocProjectBudget";
+        _fields="_Form,PUID,UID,Version,Status,Total project budget|Amount,Approval_Date,Approved_By,Approval_FY,Comments,Project Proposal/Variation Narrative|DocBudget,Project Budget|DocProjectBudget";
         _fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
         //-------------------------------------
         _cell_render=function(records,I,field,td,set_value,source){
             switch(field){
                 case 'DocBudget':
                 case 'DocProjectBudget':
-                VmInclude:__COMPONENT__/grid/field_file.js
-                	break;
+                    records[I].vm_custom[field]=true;
+                    if(records[I][field]===undefined) records[I][field]="";
+                    td.data('filename_field',field);
+                    var html="<u style='cursor:pointer'>"+records[I][field]+"</u>";
+                    html+="<form><input type=file style='display:none'></input></form>";
+                    td.html(html);
+                    if(records[I][field]==="" || records[I][field]===null || records[I][field]===undefined) td.find('a.remove_file').css('visibility','hidden');
+                    td.find('u').on('click',function(){
+                        var f_name=$(this).html();
+                        var rid=records[I].ID;
+                        if(rid!==undefined){
+                            $vm.open_link({rid:rid,filename:f_name});
+                        }
+                        else alert("No file was found on server.")
+                    });
+            	break;
             }
         }
         //-------------------------------------
