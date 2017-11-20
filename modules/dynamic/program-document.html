@@ -1,16 +1,17 @@
 <section>
-      VmInclude:__COMPONENT__/grid/grid.v3.html
+      VmInclude:/components/grid.v3.html
 </section>
 <script>
     function F__ID(){
         //-------------------------------------
-        VmInclude:__COMPONENT__/grid/grid.v3.js
+        VmInclude:/components/grid.v3.js
         VmInclude:__COMPONENT__/style/ease-in-out.js
         _json=''; //Store data as XML - NOT json
         //-------------------------------------
 		$('#new__ID').hide();
 		$('#save__ID').hide();
-		//-------------------------------------
+        $('#title__ID').html('Programme | Program Documents')		//-------------------------------------
+//-------------------------------------
         _fields="_Form,PUID,UID,Name,Description,Type,Notes";
         _fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
         //-------------------------------------
@@ -41,5 +42,5 @@
     }
 </script>
 <style>
-    VmInclude:__COMPONENT__/grid/grid.v3.css
+    VmInclude:/components/grid.v3.css
 </style>

@@ -26,6 +26,7 @@
 		"database_content_approval_status":			{"url" : "/modules/dynamic/setup/approval_status.html","table_id" : "20000685","name_for_search" : "Project Approval Status"},
 		"database_content_document_type":			{"url" : "/modules/dynamic/setup/document_type.html","table_id" : "20000022","name_for_search" : "Document Type"},
 		"database_content_program_list_sub_table":	{"url" : "/modules/dynamic/setup/program_list_sub_table.html","table_id" : "20004719","name_for_search" : "Program List Sub Table"},
-		"database_content_site":						{"url" : "/modules/dynamic/setup/site.html","table_id" : "20000513","name_for_search" : "Site"}
+        "database_content_site":						{"url" : "/modules/dynamic/setup/site.html","table_id" : "20000513","name_for_search" : "Site"},
+        "first_example":			                 {"url" : "/modules/dynamic/queries/first_example.html","table_id" : "20000013","name_for_search" : "First Example"}
 	}
 }

@@ -1,0 +1,46 @@
+<section>
+      VmInclude:/components/grid.query.v3.html
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:/components/grid.v3.js
+        VmInclude:__COMPONENT__/style/ease-in-out.js
+        //-------------------------------------
+        $('#title__ID').html('Queries | First Example')
+        //-------------------------------------
+        _fields="Program,Country,Code";
+        //_fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
+        //-------------------------------------
+        $('#query1__ID').on('click',function(){ _set_req(); _request_data(); })
+        //-------------------------------------
+        $('#D__ID').on('load',function(){
+            var today = new Date();
+            $('#q1__ID').datepicker({dateFormat:'dd/mm/yy'});
+            $('#q1__ID').val($.datepicker.formatDate('dd/mm/yy', today));
+        })
+        //-------------------------------------
+        _set_req=_set_req_export=function(){
+            var sql = "select Information from [TABLE-"+_db_pid+"]"
+            _req={cmd:'query_records',sql:sql,t1:$('#t1__ID').val()}
+        }
+        //-------------------------------------
+/*        _data_process=function(){
+            var total_time=0;
+            for(var i=0;i<_records.length;i++){
+                total_time=parseInt(_records[i].work_minutes);
+                _records[i].work_hours=Math.floor(total_time/60)+':'+((total_time%60<10)?"0":"")+total_time%60;
+            }
+        }
+        //-------------------------------------
+        var _request_data_export=function(){
+            $VmAPI.request({data:_req,callback:function(res){
+                _export_data(_filename);
+            }})
+        }
+*/        //-------------------------------------
+    }
+</script>
+<style>
+    VmInclude:/components/grid.v3.css
+</style>
