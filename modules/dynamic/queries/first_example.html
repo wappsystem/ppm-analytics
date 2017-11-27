@@ -5,40 +5,33 @@
     function F__ID(){
         //-------------------------------------
         VmInclude:/components/grid.v3.js
-        VmInclude:__COMPONENT__/style/ease-in-out.js
         //-------------------------------------
-        $('#title__ID').html('Queries | First Example')
+        $('#title__ID').html('Queries | Find Projects Under A Programme')
         //-------------------------------------
-        _fields="Program,Country,Code";
-        //_fields+=",Submit Date|DateTime,Submitted by|Author,_Delete";
+        $('#q1__ID').autocomplete({
+            minLength:0,
+            source:function(request,response){
+                var sql="with tb as (select name=@('Code') from [TABLE-20000013])";
+                sql+=" select top 10 name,value=name from tb where name like '%'+@S1+'%' ";
+                $VmAPI.request({data:{cmd:'auto',s1:request.term,sql:sql,minLength:0},callback:function(res){
+                    response($vm.autocomplete_list(res.table));
+                }});
+            },
+        })
+        $('#q1__ID').focus(function(){$('#q1__ID').autocomplete("search","");});
+        //-------------------------------------
+        _fields="Project,Country,Code|Project_Code";
         //-------------------------------------
         $('#query1__ID').on('click',function(){ _set_req(); _request_data(); })
         //-------------------------------------
         $('#D__ID').on('load',function(){
-            var today = new Date();
-            $('#q1__ID').datepicker({dateFormat:'dd/mm/yy'});
-            $('#q1__ID').val($.datepicker.formatDate('dd/mm/yy', today));
         })
         //-------------------------------------
         _set_req=_set_req_export=function(){
-            var sql = "select Information from [TABLE-"+_db_pid+"]"
-            _req={cmd:'query_records',sql:sql,t1:$('#t1__ID').val()}
+            var sql = "select Information from [TABLE-"+_db_pid+"] where @('Project_Code') like '%'+@S1+'%'"
+            _req={cmd:'query_records',sql:sql,s1:$('#q1__ID').val()}
         }
         //-------------------------------------
-/*        _data_process=function(){
-            var total_time=0;
-            for(var i=0;i<_records.length;i++){
-                total_time=parseInt(_records[i].work_minutes);
-                _records[i].work_hours=Math.floor(total_time/60)+':'+((total_time%60<10)?"0":"")+total_time%60;
-            }
-        }
-        //-------------------------------------
-        var _request_data_export=function(){
-            $VmAPI.request({data:_req,callback:function(res){
-                _export_data(_filename);
-            }})
-        }
-*/        //-------------------------------------
     }
 </script>
 <style>
