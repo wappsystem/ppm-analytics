@@ -1,0 +1,194 @@
+<section>
+    <section>
+    	<div id=toolbar__ID class="navbar navbar-default">
+    	    	<div id=row_1__ID class="col-sm-6 col-lg-6">
+    					<input id=q1__ID type="text" placeholder="Country" class="form-control" style="width: 200px; display:inline-block;">&nbsp;
+    					<input id=q2__ID type="text" placeholder="FYXXX" class="form-control" style="width: 150px; display:inline-block;">&nbsp;
+    					<input id=q3__ID type="text" placeholder="" class="form-control" style="width: 150px; display:none;">
+    					<button id=query1__ID type=button class="btn btn-secondary"><i class="fa fa-search" title='Query'></i></button>
+    					<button id=export__ID type=button class="btn btn-secondary"><i class="fa fa-download" title='Export'></i></button>
+    					<span id=title__ID class="small"></span>
+    	    	</div>
+    	    	<div class="col-sm-6 col-lg-6">
+    		            Page Size:
+    		            <select id=page_size__ID class="form-control" style='margin-right:20px;display:inline-block;width:auto;'><option>30</option><option>50</option><option>100</option><option>200</option></select>
+    		            <span id=I__ID style="display:none">0</span><span id=A__ID></span>
+    		            <button id=p__ID type=button class="btn btn-secondary"><i class="fa fa-arrow-left"></i></button>
+    		            <button id=n__ID type=button class="btn btn-secondary"><i class="fa fa-arrow-right"></i></button>
+                        <span id=elapsed__ID style='float:right'></span>
+    	    	</div>
+        </div>
+        <div id=table__ID>
+            <table id=grid__ID></table>
+        </div>
+    </section>
+</section>
+<script>
+    function F__ID(){
+        //-------------------------------------
+        VmInclude:/components/grid.v3.js
+        //-------------------------------------
+        $('#title__ID').text('Queries | Project quarterly budget and actual')
+        //-------------------------------------
+        $('#q1__ID').autocomplete({
+            //fill in an auto complete list.
+            minLength:0,
+            source:function(request,response){
+                var sql="with tb as (select name=@('Country') from [TABLE-20000025])";
+                //if a single field is needed it can be accessed via @('field name')
+                sql+=" select top 10 name,value=name from tb where name like '%'+@S1+'%' ";
+                $VmAPI.request({data:{cmd:'auto',s1:request.term,sql:sql,minLength:0},callback:function(res){
+                    response($vm.autocomplete_list(res.table));
+                }});
+            },
+        })
+        $('#q1__ID').focus(function(){$('#q1__ID').autocomplete("search","");});
+        //-------------------------------------
+        _fields="Project,Project_Code,ANCP,Approval_Status,FY_Approved_Project_Budget,Project Budget FY Accumulated Expenditure Q1|FY_Acc_Q1,Q1 %|Q1percent,Project Budget FY Accumulated Expenditure Q2|FY_Acc_Q2,Q1 %|Q2percent"
+        _fields+=",Project Budget FY Accumulated Expenditure Q3|FY_Acc_Q3,Q1 %|Q3percent,Project Budget FY Accumulated YTD Expenditure|FY_Acc_YTD,YTD %|YTDpercent";
+        //-------------------------------------
+        $('#query1__ID').on('click',function(){
+            if($('#q2__ID').val()==''){ $vm.alert("Please fill in Financial Year");}
+            else if($('#q1__ID').val()==''){$vm.alert("Please select Country");}
+            else {_set_req(); _request_data();}
+        })
+        //-------------------------------------
+        $('#D__ID').on('load',function(){
+        })
+        //-------------------------------------
+        _set_req=_set_req_export=function(){
+            var sql = "with \
+		pg as (\
+			select \
+				UID,PUID,\
+				Country=@('Country'),\
+				Program=@('Program')\
+			from [TABLE-20000013] where @('Country')=@S3\
+		),\
+		project as (\
+			select UID,PUID, \
+				Project=@('Project'),\
+				Code=@('Project_Code'),\
+				Approval_Status=@('Approval_Status')\
+			from [TABLE-20000012]\
+		),\
+		budget as (\
+			select\
+				UID,PUID,\
+				Approval_Date=@T('Approval_Date'),\
+				Approval_FY=@('Approval_FY'),\
+				Version=@('Version')\
+			from [TABLE-20000023]\
+		),\
+		budget_max_date as (\
+			select\
+				PUID,\
+				Approval_Date=MAX(Approval_Date)\
+			from budget group by PUID\
+		),\
+		fy as (\
+			select PUID, Amount=case when @D('Amount')=0 then 0.01 else @D('Amount') end ,\
+			fyFY=@('FY'),[ANCP]= CASE WHEN @('ANCP')='on' THEN 'Yes' ELSE '' END \
+			from [TABLE-20000014]\
+		),\
+		spending as (\
+			select\
+				PUID,\
+				spFY=@('FY'),\
+				Amount_Q1=@D('Amount_Q1'),\
+				Amount_Q2=@D('Amount_Q2'),\
+				Amount_Q3=@D('Amount_Q3'),\
+				Amount=@D('Amount')\
+			from [TABLE-20000015]\
+		)\
+        select Project,Project_Code=Code,ANCP,[Approval_Status],FY_Approved_Project_Budget=fy.Amount,\
+		FY_Acc_Q1=Amount_Q1,Q1percent=convert(varchar,cast(100*spending.Amount_Q1/fy.Amount as numeric(10,0))),\
+	    FY_Acc_Q2=Amount_Q2,Q2percent=convert(varchar,cast(100*spending.Amount_Q2/fy.Amount as numeric(10,0))),\
+		FY_Acc_Q3=Amount_Q3,Q3percent=convert(varchar,cast(100*spending.Amount_Q3/fy.Amount as numeric(10,0))),\
+		FY_Acc_YTD=spending.Amount,YTDpercent=convert(varchar,cast(100*spending.Amount/fy.Amount as numeric(10,0)))\
+		from pg\
+		left join project on pg.UID=project.PUID\
+		left join budget on project.UID=budget.PUID\
+		join budget_max_date on budget.PUID=budget_max_date.PUID and budget.Approval_Date=budget_max_date.Approval_Date\
+		left join fy on fy.PUID=budget.UID\
+		left join spending on spending.PUID=project.UID\
+		where fyFY=spFY and fyFY like '%'+@S2+'%'\
+		union all\
+        select '','','','','','','','','','','','',''\
+"
+            _req={cmd:'query_records',sql:sql,s3:$('#q1__ID').val(),s2:$('#q2__ID').val()}
+        }
+        //-------------------------------------
+        //Manipulation of returned data before presentation
+        _data_process=function(){
+            var fy_app=0;q1_acc=0;q2_acc=0;q3_acc=0;ytd_acc=0;p_q1=0;p_q2=0;p_q3=0;p_ytd=0;
+            for(var i=0;i<_records.length-1;i++){
+                fy_app+=parseFloat(_records[i].FY_Approved_Project_Budget);
+                q1_acc+=parseFloat(_records[i].FY_Acc_Q1);
+                q2_acc+=parseFloat(_records[i].FY_Acc_Q2);
+                q3_acc+=parseFloat(_records[i].FY_Acc_Q3);
+                ytd_acc+=parseFloat(_records[i].FY_Acc_YTD);
+            }
+            _records[_records.length-1].Project="Total";
+            _records[_records.length-1].FY_Approved_Project_Budget=fy_app;
+            _records[_records.length-1].FY_Acc_Q1=q1_acc;
+            _records[_records.length-1].FY_Acc_Q2=q2_acc;
+            _records[_records.length-1].FY_Acc_Q3=q3_acc;
+            _records[_records.length-1].FY_Acc_YTD=ytd_acc;
+            _records[_records.length-1].Q1percent=(100*q1_acc/fy_app).toFixed(0)
+            _records[_records.length-1].Q2percent=(100*q2_acc/fy_app).toFixed(0)
+            _records[_records.length-1].Q3percent=(100*q3_acc/fy_app).toFixed(0)
+            _records[_records.length-1].YTDpercent=(100*ytd_acc/fy_app).toFixed(0)
+
+        };
+        //-------------------------------------
+        var formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+        });
+        //-------------------------------------
+        _cell_render=function(records,I,field,td,set_value,source){
+            switch(field){
+                case 'FY_Approved_Project_Budget':
+                case 'FY_Acc_Q1':
+                case 'FY_Acc_Q2':
+                case 'FY_Acc_Q3':
+                case 'FY_Acc_YTD':
+                   records[I].vm_readonly[field]=true;
+                    td.css('color','#888');
+                    if(I==records.length-1) {td.css('font-weight','bold');td.css('color','#444');}
+                    if(source=="grid") td.css("text-align","right").css('white-space','nowrap');
+                    if(records[I][field] <0) {
+                      var strr=formatter.format(records[I][field]).replace('-','(')
+                      td.html(strr+')');
+                      td.css("color","red")
+                    }
+                    else td.html(formatter.format(records[I][field]));
+                break;
+                case 'Q1percent':
+                case 'Q2percent':
+                case 'Q3percent':
+                case 'YTDpercent':
+                    records[I].vm_readonly[field]=true;
+                    td.css('color','#888');
+                    if(I==records.length-1) {td.css('font-weight','bold');td.css('color','#444');}
+                    if(source=="grid") td.css("text-align","right").css('white-space','nowrap');
+                    if(records[I][field]=='') td.html(records[I][field])
+                    else td.html(records[I][field]+'%'); //add % sign
+                break;
+                case 'Project':
+                case 'Project_Code':
+                case 'ANCP':
+                case 'Approval_Status':
+                   records[I].vm_readonly[field]=true;
+                    td.css('color','#888');
+                    if(I==records.length-1) {td.css('font-weight','bold');td.css('color','#444');}
+                break;
+            }
+        }
+    }
+</script>
+<style>
+    VmInclude:/components/grid.v3.css
+</style>

@@ -6,12 +6,14 @@
         //-------------------------------------
         VmInclude:/components/grid.v3.js
         //-------------------------------------
-        $('#title__ID').html('Queries | Find Projects Under A Programme')
+        $('#title__ID').text('Queries | Find all projects in a programme')
         //-------------------------------------
         $('#q1__ID').autocomplete({
+            //fill in an auto complete list.
             minLength:0,
             source:function(request,response){
                 var sql="with tb as (select name=@('Code') from [TABLE-20000013])";
+                //if a single field is needed it can be accessed via @('field name')
                 sql+=" select top 10 name,value=name from tb where name like '%'+@S1+'%' ";
                 $VmAPI.request({data:{cmd:'auto',s1:request.term,sql:sql,minLength:0},callback:function(res){
                     response($vm.autocomplete_list(res.table));
@@ -21,6 +23,7 @@
         $('#q1__ID').focus(function(){$('#q1__ID').autocomplete("search","");});
         //-------------------------------------
         _fields="Project,Country,Code|Project_Code";
+        // fields name. Project,Country,Code|Project_Code; Project and Country field name and heading is the same. Code is the heading and Project_Code is the field name.
         //-------------------------------------
         $('#query1__ID').on('click',function(){ _set_req(); _request_data(); })
         //-------------------------------------
@@ -28,7 +31,13 @@
         })
         //-------------------------------------
         _set_req=_set_req_export=function(){
-            var sql = "select Information from [TABLE-"+_db_pid+"] where @('Project_Code') like '%'+@S1+'%'"
+            // In modules.json configuration is specified.
+            // "first_example":{"url" : "/modules/dynamic/queries/first_example.html","table_id" : "20000012","name_for_search" : "First Example"}
+
+            //_db_pid is "table_id" for the link "first_example" - 20000012 (project table). _db_pid can be replaced wirh the number as on line 15.
+            //When the request is sent to the server, the response is a json structure for all fields in the table. (use inspect - console in the browser to see the transfers of request and reponse.)
+            //_fields on line 25 define the fields that should be shown. (extracted from Information)
+            var sql = "select Information from [TABLE-"+_db_pid+"] where @('Project_Code') like '%'+@S1+'%' order by @('Project_Code')"
             _req={cmd:'query_records',sql:sql,s1:$('#q1__ID').val()}
         }
         //-------------------------------------

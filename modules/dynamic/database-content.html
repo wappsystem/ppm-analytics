@@ -2,34 +2,34 @@
     <div style='width:100%;overflow:auto'>
     </div>
 	<div class='nav__ID'>
-		<span>Programmes and Projects</span>
+		<span>Programmes and Projects</span><i>parent UID is linked to child PUID</i>
         <ul>
-			<li module=program_list>Programme</li>
+			<li module=program_list>Programme <i></i></li>
             <ul>
-    			<li module=project_list>Project</li>
+    			<li module=project_list>Project - <i>Programme is parent</i></li>
                 <ul>
-                    <li module=proposal_variation>Proposal and Variation</li>
+                    <li module=proposal_variation>Proposal and Variation - <i>Project is parent</i></li>
                     <ul>
-                        <li module=fy_budget>FY Budget</li>
+                        <li module=fy_budget>FY Budget - <i>Proposal and Variation is parent</i></li>
                         <ul>
-                            <li module=fy_budget_items>Item List</li>
+                            <li module=fy_budget_items>Item List - <i>FY Budget is parent</i></li>
                         </ul>
                     </ul>
-                    <li module=actual_spending>Actual Spending</li>
+                    <li module=actual_spending>Actual Spending - <i>Project is parent</i></li>
                     <ul>
-                        <li module=actual_spending_items>Item List</li>
+                        <li module=actual_spending_items>Item List - <i>Actual Spending is parent</i></li>
                     </ul>
-                    <li module=pending_funds>Pending Funds</li>
-                    <li module=project_document>Project Documents</li>
+                    <li module=pending_funds>Pending Funds - <i>Project is parent</i></li>
+                    <li module=project_document>Project Documents - <i>Project is parent</i></li>
                 </ul>
-                <li module=program_document>Programme Documents</li>
+                <li module=program_document>Programme Documents - <i>Programme is parent</i></li>
             </ul>
         </ul>
 		<span>Quarterly Projection</span>
 	    <ul>
 			<li module=quarterly_projection_country>Country</li>
             <ul>
-                <li module=quarterly_projection>Projection</li>
+                <li module=quarterly_projection>Projection - <i>Country is parent</i></li>
             </ul>
         </ul>
 	</div>
