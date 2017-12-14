@@ -26,7 +26,7 @@
 <script>
     function F__ID(){
         //-------------------------------------
-        VmInclude:/components/grid.v3.js
+		VmInclude:__COMPONENT__/grid/grid.v3.js
         //-------------------------------------
         $('#title__ID').text('Queries | Project quarterly budget and actual')
         //-------------------------------------
@@ -56,67 +56,72 @@
         $('#D__ID').on('load',function(){
         })
         //-------------------------------------
-        _set_req=_set_req_export=function(){
-            var sql = "with \
-		pg as (\
-			select \
-				UID,PUID,\
-				Country=@('Country'),\
-				Program=@('Program')\
-			from [TABLE-20000013] where @('Country')=@S3\
-		),\
-		project as (\
-			select UID,PUID, \
-				Project=@('Project'),\
-				Code=@('Project_Code'),\
-				Approval_Status=@('Approval_Status')\
-			from [TABLE-20000012]\
-		),\
-		budget as (\
-			select\
-				UID,PUID,\
-				Approval_Date=@T('Approval_Date'),\
-				Approval_FY=@('Approval_FY'),\
-				Version=@('Version')\
-			from [TABLE-20000023]\
-		),\
-		budget_max_date as (\
-			select\
-				PUID,\
-				Approval_Date=MAX(Approval_Date)\
-			from budget group by PUID\
-		),\
-		fy as (\
-			select PUID, Amount=case when @D('Amount')=0 then 0.01 else @D('Amount') end ,\
-			fyFY=@('FY'),[ANCP]= CASE WHEN @('ANCP')='on' THEN 'Yes' ELSE '' END \
-			from [TABLE-20000014]\
-		),\
-		spending as (\
-			select\
-				PUID,\
-				spFY=@('FY'),\
-				Amount_Q1=@D('Amount_Q1'),\
-				Amount_Q2=@D('Amount_Q2'),\
-				Amount_Q3=@D('Amount_Q3'),\
-				Amount=@D('Amount')\
-			from [TABLE-20000015]\
-		)\
-        select Project,Project_Code=Code,ANCP,[Approval_Status],FY_Approved_Project_Budget=fy.Amount,\
-		FY_Acc_Q1=Amount_Q1,Q1percent=convert(varchar,cast(100*spending.Amount_Q1/fy.Amount as numeric(10,0))),\
-	    FY_Acc_Q2=Amount_Q2,Q2percent=convert(varchar,cast(100*spending.Amount_Q2/fy.Amount as numeric(10,0))),\
-		FY_Acc_Q3=Amount_Q3,Q3percent=convert(varchar,cast(100*spending.Amount_Q3/fy.Amount as numeric(10,0))),\
-		FY_Acc_YTD=spending.Amount,YTDpercent=convert(varchar,cast(100*spending.Amount/fy.Amount as numeric(10,0)))\
-		from pg\
-		left join project on pg.UID=project.PUID\
-		left join budget on project.UID=budget.PUID\
-		join budget_max_date on budget.PUID=budget_max_date.PUID and budget.Approval_Date=budget_max_date.Approval_Date\
-		left join fy on fy.PUID=budget.UID\
-		left join spending on spending.PUID=project.UID\
-		where fyFY=spFY and fyFY like '%'+@S2+'%'\
-		union all\
-        select '','','','','','','','','','','','',''\
-"
+		var sql = "with \
+			pg as (\
+				select \
+					UID,PUID,\
+					Country=@('Country'),\
+					Program=@('Program')\
+				from [TABLE-20000013] where @('Country')=@S3\
+			),\
+			project as (\
+				select UID,PUID, \
+					Project=@('Project'),\
+					Code=@('Project_Code'),\
+					Approval_Status=@('Approval_Status')\
+				from [TABLE-20000012]\
+			),\
+			budget as (\
+				select\
+					UID,PUID,\
+					Approval_Date=@T('Approval_Date'),\
+					Approval_FY=@('Approval_FY'),\
+					Version=@('Version')\
+				from [TABLE-20000023]\
+			),\
+			budget_max_date as (\
+				select\
+					PUID,\
+					Approval_Date=MAX(Approval_Date)\
+				from budget group by PUID\
+			),\
+			fy as (\
+				select PUID, Amount=case when @D('Amount')=0 then 0.01 else @D('Amount') end ,\
+				fyFY=@('FY'),[ANCP]= CASE WHEN @('ANCP')='on' THEN 'Yes' ELSE '' END \
+				from [TABLE-20000014]\
+			),\
+			spending as (\
+				select\
+					PUID,\
+					spFY=@('FY'),\
+					Amount_Q1=@D('Amount_Q1'),\
+					Amount_Q2=@D('Amount_Q2'),\
+					Amount_Q3=@D('Amount_Q3'),\
+					Amount=@D('Amount')\
+				from [TABLE-20000015]\
+			)\
+			select Project,Project_Code=Code,ANCP,[Approval_Status],FY_Approved_Project_Budget=fy.Amount,\
+			FY_Acc_Q1=Amount_Q1,Q1percent=convert(varchar,cast(100*spending.Amount_Q1/fy.Amount as numeric(10,0))),\
+			FY_Acc_Q2=Amount_Q2,Q2percent=convert(varchar,cast(100*spending.Amount_Q2/fy.Amount as numeric(10,0))),\
+			FY_Acc_Q3=Amount_Q3,Q3percent=convert(varchar,cast(100*spending.Amount_Q3/fy.Amount as numeric(10,0))),\
+			FY_Acc_YTD=spending.Amount,YTDpercent=convert(varchar,cast(100*spending.Amount/fy.Amount as numeric(10,0)))\
+			from pg\
+			left join project on pg.UID=project.PUID\
+			left join budget on project.UID=budget.PUID\
+			join budget_max_date on budget.PUID=budget_max_date.PUID and budget.Approval_Date=budget_max_date.Approval_Date\
+			left join fy on fy.PUID=budget.UID\
+			left join spending on spending.PUID=project.UID\
+			where fyFY=spFY and fyFY like '%'+@S2+'%'\
+			union all\
+			select '','','','','','','','','','','','',''\
+		"
+		//-------------------------------------
+        _set_req=function(){
             _req={cmd:'query_records',sql:sql,s3:$('#q1__ID').val(),s2:$('#q2__ID').val()}
+        }
+        //-------------------------------------
+		_set_req_export=function(i1,i2){
+            _req={cmd:'query_records',sql:sql,s3:$('#q1__ID').val(),s2:$('#q2__ID').val(),i1:i1,i2:i2}
         }
         //-------------------------------------
         //Manipulation of returned data before presentation
@@ -139,7 +144,6 @@
             _records[_records.length-1].Q2percent=(100*q2_acc/fy_app).toFixed(0)
             _records[_records.length-1].Q3percent=(100*q3_acc/fy_app).toFixed(0)
             _records[_records.length-1].YTDpercent=(100*ytd_acc/fy_app).toFixed(0)
-
         };
         //-------------------------------------
         var formatter = new Intl.NumberFormat('en-US', {
