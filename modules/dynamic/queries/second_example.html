@@ -3,7 +3,7 @@
     	<div id=toolbar__ID class="navbar navbar-default">
     	    	<div id=row_1__ID class="col-sm-6 col-lg-6">
     					<input id=q1__ID type="text" placeholder="Country" class="form-control" style="width: 200px; display:inline-block;">&nbsp;
-    					<input id=q2__ID type="text" placeholder="FYXXX" class="form-control" style="width: 150px; display:inline-block;">&nbsp;
+    					<select id=q2__ID type="text" class="form-control" style="width: 150px; display:inline-block;"></select>&nbsp;
     					<input id=q3__ID type="text" placeholder="" class="form-control" style="width: 150px; display:none;">
     					<button id=query1__ID type=button class="btn btn-secondary"><i class="fa fa-search" title='Query'></i></button>
     					<button id=export__ID type=button class="btn btn-secondary"><i class="fa fa-download" title='Export'></i></button>
@@ -30,6 +30,17 @@
         //-------------------------------------
         $('#title__ID').text('Queries | Project quarterly budget and actual')
         //-------------------------------------
+        var n=new Date();
+        var y=n.getYear()-100;
+        var $List2=$('#q2__ID');
+        $List2.append(  $('<option></option>').val("FY"+(y-5).toString()+(y-4).toString()).html("FY"+(y-5).toString()+(y-4).toString())  );
+        $List2.append(  $('<option></option>').val("FY"+(y-4).toString()+(y-3).toString()).html("FY"+(y-4).toString()+(y-3).toString())  );
+        $List2.append(  $('<option></option>').val("FY"+(y-3).toString()+(y-2).toString()).html("FY"+(y-3).toString()+(y-2).toString())  );
+        $List2.append(  $('<option></option>').val("FY"+(y-2).toString()+(y-1).toString()).html("FY"+(y-2).toString()+(y-1).toString())  );
+        $List2.append(  $('<option></option>').val("FY"+(y-1).toString()+(y).toString()).html("FY"+(y-1).toString()+(y).toString())  );
+        $List2.append(  $('<option></option>').val("FY"+(y).toString()+(y+1).toString()).html("FY"+(y).toString()+(y+1).toString())  );
+        $List2.val();
+        //-------------------------------------
         $('#q1__ID').autocomplete({
             //fill in an auto complete list.
             minLength:0,
@@ -44,8 +55,8 @@
         })
         $('#q1__ID').focus(function(){$('#q1__ID').autocomplete("search","");});
         //-------------------------------------
-        _fields="Project,Project_Code,ANCP,Approval_Status,FY_Approved_Project_Budget,Project Budget FY Accumulated Expenditure Q1|FY_Acc_Q1,Q1 %|Q1percent,Project Budget FY Accumulated Expenditure Q2|FY_Acc_Q2,Q1 %|Q2percent"
-        _fields+=",Project Budget FY Accumulated Expenditure Q3|FY_Acc_Q3,Q1 %|Q3percent,Project Budget FY Accumulated YTD Expenditure|FY_Acc_YTD,YTD %|YTDpercent";
+        _fields="Project,Project_Code,ANCP,Approval_Status,FY_Approved_Project_Budget,Project Budget FY Accumulated Expenditure Q1|FY_Acc_Q1,Q1 %|Q1percent,Project Budget FY Accumulated Expenditure Q2|FY_Acc_Q2,Q2 %|Q2percent"
+        _fields+=",Project Budget FY Accumulated Expenditure Q3|FY_Acc_Q3,Q3 %|Q3percent,Project Budget FY Accumulated YTD Expenditure|FY_Acc_YTD,YTD %|YTDpercent";
         //-------------------------------------
         $('#query1__ID').on('click',function(){
             if($('#q2__ID').val()==''){ $vm.alert("Please fill in Financial Year");}
@@ -101,10 +112,10 @@
 				from [TABLE-20000015]\
 			)\
 			select Project,Project_Code=Code,ANCP,[Approval_Status],FY_Approved_Project_Budget=fy.Amount,\
-			FY_Acc_Q1=Amount_Q1,Q1percent=convert(varchar,cast(100*spending.Amount_Q1/fy.Amount as numeric(10,0))),\
-			FY_Acc_Q2=Amount_Q2,Q2percent=convert(varchar,cast(100*spending.Amount_Q2/fy.Amount as numeric(10,0))),\
-			FY_Acc_Q3=Amount_Q3,Q3percent=convert(varchar,cast(100*spending.Amount_Q3/fy.Amount as numeric(10,0))),\
-			FY_Acc_YTD=spending.Amount,YTDpercent=convert(varchar,cast(100*spending.Amount/fy.Amount as numeric(10,0)))\
+			FY_Acc_Q1=Amount_Q1,Q1percent='', \
+			FY_Acc_Q2=Amount_Q2,Q2percent='', \
+			FY_Acc_Q3=Amount_Q3,Q3percent='', \
+			FY_Acc_YTD=spending.Amount,YTDpercent='' \
 			from pg\
 			left join project on pg.UID=project.PUID\
 			left join budget on project.UID=budget.PUID\
@@ -133,6 +144,10 @@
                 q2_acc+=parseFloat(_records[i].FY_Acc_Q2);
                 q3_acc+=parseFloat(_records[i].FY_Acc_Q3);
                 ytd_acc+=parseFloat(_records[i].FY_Acc_YTD);
+                _records[i].Q1percent=(100*parseFloat(_records[i].FY_Acc_Q1)/parseFloat(_records[i].FY_Approved_Project_Budget)).toFixed(0)
+                _records[i].Q2percent=(100*parseFloat(_records[i].FY_Acc_Q2)/parseFloat(_records[i].FY_Approved_Project_Budget)).toFixed(0)
+                _records[i].Q3percent=(100*parseFloat(_records[i].FY_Acc_Q3)/parseFloat(_records[i].FY_Approved_Project_Budget)).toFixed(0)
+                _records[i].YTDpercent=(100*parseFloat(_records[i].FY_Acc_YTD)/parseFloat(_records[i].FY_Approved_Project_Budget)).toFixed(0)
             }
             _records[_records.length-1].Project="Total";
             _records[_records.length-1].FY_Approved_Project_Budget=fy_app;
@@ -140,10 +155,12 @@
             _records[_records.length-1].FY_Acc_Q2=q2_acc;
             _records[_records.length-1].FY_Acc_Q3=q3_acc;
             _records[_records.length-1].FY_Acc_YTD=ytd_acc;
-            _records[_records.length-1].Q1percent=(100*q1_acc/fy_app).toFixed(0)
-            _records[_records.length-1].Q2percent=(100*q2_acc/fy_app).toFixed(0)
-            _records[_records.length-1].Q3percent=(100*q3_acc/fy_app).toFixed(0)
-            _records[_records.length-1].YTDpercent=(100*ytd_acc/fy_app).toFixed(0)
+            if(fy_app!=0){
+                _records[_records.length-1].Q1percent=(100*q1_acc/fy_app).toFixed(0)
+                _records[_records.length-1].Q2percent=(100*q2_acc/fy_app).toFixed(0)
+                _records[_records.length-1].Q3percent=(100*q3_acc/fy_app).toFixed(0)
+                _records[_records.length-1].YTDpercent=(100*ytd_acc/fy_app).toFixed(0)
+            }
         };
         //-------------------------------------
         var formatter = new Intl.NumberFormat('en-US', {
